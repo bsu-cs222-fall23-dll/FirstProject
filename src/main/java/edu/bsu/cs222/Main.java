@@ -34,8 +34,14 @@ public class Main
 
     public static void displayRecentRevisions(ArrayList<Revision> revisionList)
     {
-        for (Revision revision : revisionList)
+        System.out.println("Recent revisions:");
+
+        int totalRevisions = revisionList.size();
+        int revisionsToDisplay = Math.min(totalRevisions, 13);
+
+        for (int i = 0; i < revisionsToDisplay; i++)
         {
+            Revision revision = revisionList.get(i);
             System.out.println(revision.getTimestamp() + " " + revision.getUsername());
         }
     }
