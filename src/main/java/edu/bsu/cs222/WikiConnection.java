@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WikiConnection
 {
@@ -19,7 +21,7 @@ public class WikiConnection
 
     HttpURLConnection connection = null;
     BufferedReader reader = null;
-    StringBuilder jsonContent = new StringBuilder;
+    StringBuilder jsonContent = new StringBuilder();
 
     try
     {
@@ -37,27 +39,46 @@ public class WikiConnection
         jsonContent.append(line);
       }
     }
-      
+
+    catch (IOException e)
+    {
+      Logger.getLogger(WikiConnection.class.getName()).log(Level.SEVERE, "Connection failed :(", e);
+    }
+
     finally
     {
-      if (reader != null)
+      try
       {
-        reader.close();
+        if (reader != null)
+        {
+          reader.close();
+        }
+        if (connection != null)
+        {
+          connection.disconnect();
+        }
       }
-      if (connection != null)
+
+      catch (IOException e)
       {
-        connection.disconnet();
+        Logger.getLogger(WikiConnection.class.getName()).log(Level.SEVERE, "Error closing resources", e);
       }
     }
 
     return jsonContent.toString();
   }
 
-  private String formatArticleNameForURL(String articleName)
+  public String formatArticleNameForURL(String articleName)
   {
     return articleName.replace(" ", "_");
   }
 
+  private String buildApiUrl(String formattedArticleName)
+  {
+    return String.format("%s?action=query&format=json&prop=revisions&titles=%s&rvprop=timestamp|user&rvlimit=13&redirects",
+            WIKIPEDIA_API_URL, formattedArticleName);
+  }
+}
   private String buildApiUrl(String formattedArticleName)
   {
     return String.format("%s?action=query&format=json&prop=revisions&titles=%s&rvprop=timestamp|user&rvlimit=13&redirects",
